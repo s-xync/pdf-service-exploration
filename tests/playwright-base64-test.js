@@ -57,7 +57,9 @@ export async function generatePDFWithPlaywrightBase64(data = {}) {
     // Load test-image.png and convert to data URI
     const testImagePath = path.join(assetsDir, 'test-image.png');
     const testImage = await fs.readFile(testImagePath);
-    const testImageDataUri = `data:image/png;base64,${testImage.toString('base64')}`;
+    // Ensure it's a Buffer and convert to base64
+    const testImageBuffer = Buffer.isBuffer(testImage) ? testImage : Buffer.from(testImage);
+    const testImageDataUri = `data:image/png;base64,${testImageBuffer.toString('base64')}`;
 
     // Replace template variables
     html = html

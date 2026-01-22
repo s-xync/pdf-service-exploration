@@ -115,13 +115,27 @@ export async function generatePDFWithPuppeteerBaseURL(data = {}) {
       .replace('{{dosage}}', data.dosage || '10mg')
       .replace('{{instructions}}', data.instructions || 'Take once daily');
 
-    // Set content with baseURL pointing to assets directory
-    // This allows relative paths in HTML to work
-    const baseURL = `file://${assetsDir}/`;
-    await page.setContent(html, {
-      waitUntil: 'networkidle0',
-      baseURL: baseURL
-    });
+    // Save HTML to a temporary file in the assets directory
+    // This allows file:// URLs to work properly with relative paths
+    const tempHtmlPath = path.join(assetsDir, 'temp-template.html');
+    await fs.writeFile(tempHtmlPath, html);
+
+    try {
+      // Navigate to the file using file:// URL
+      // This ensures relative paths in HTML work correctly
+      const fileUrl = `file://${tempHtmlPath}`;
+      await page.goto(fileUrl, {
+        waitUntil: 'networkidle0',
+        timeout: 30000
+      });
+    } finally {
+      // Clean up temp file
+      try {
+        await fs.unlink(tempHtmlPath);
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
 
     // Generate PDF
     const pdfBuffer = await page.pdf({
