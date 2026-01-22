@@ -44,20 +44,25 @@ export async function generatePDFWithPlaywright(data = {}) {
     // Load and convert assets to data URIs
     const assetsDir = path.join(__dirname, '../assets');
 
-    // Load test.svg and convert to data URI
-    const testSvgPath = path.join(assetsDir, 'test.svg');
-    const testSvg = await fs.readFile(testSvgPath, 'utf-8');
-    const testSvgDataUri = `data:image/svg+xml;base64,${Buffer.from(testSvg).toString('base64')}`;
+    // Load test-svg-svg.svg and convert to data URI
+    const testSvgSvgPath = path.join(assetsDir, 'test-svg-svg.svg');
+    const testSvgSvg = await fs.readFile(testSvgSvgPath, 'utf-8');
+    const testSvgSvgDataUri = `data:image/svg+xml;base64,${Buffer.from(testSvgSvg).toString('base64')}`;
 
-    // Load logo.svg and convert to data URI
-    const logoSvgPath = path.join(assetsDir, 'logo.svg');
-    const logoSvg = await fs.readFile(logoSvgPath, 'utf-8');
-    const logoSvgDataUri = `data:image/svg+xml;base64,${Buffer.from(logoSvg).toString('base64')}`;
+    // Load test-svg-logo.svg and convert to data URI
+    const testSvgLogoPath = path.join(assetsDir, 'test-svg-logo.svg');
+    const testSvgLogo = await fs.readFile(testSvgLogoPath, 'utf-8');
+    const testSvgLogoDataUri = `data:image/svg+xml;base64,${Buffer.from(testSvgLogo).toString('base64')}`;
 
-    // Load test-image.png and convert to data URI
-    const testImagePath = path.join(assetsDir, 'test-image.png');
-    const testImage = await fs.readFile(testImagePath);
-    const testImageDataUri = `data:image/png;base64,${testImage.toString('base64')}`;
+    // Load test-image-png.png and convert to data URI
+    const testImagePngPath = path.join(assetsDir, 'test-image-png.png');
+    const testImagePng = await fs.readFile(testImagePngPath);
+    const testImagePngDataUri = `data:image/png;base64,${testImagePng.toString('base64')}`;
+
+    // Load test-image-jpg.jpg and convert to data URI
+    const testImageJpgPath = path.join(assetsDir, 'test-image-jpg.jpg');
+    const testImageJpg = await fs.readFile(testImageJpgPath);
+    const testImageJpgDataUri = `data:image/jpeg;base64,${testImageJpg.toString('base64')}`;
 
     // Replace template variables
     html = html
@@ -67,9 +72,10 @@ export async function generatePDFWithPlaywright(data = {}) {
       .replace('{{medicationName}}', data.medicationName || 'Sample Medication')
       .replace('{{dosage}}', data.dosage || '10mg')
       .replace('{{instructions}}', data.instructions || 'Take once daily')
-      .replace('{{testSvgDataUri}}', testSvgDataUri)
-      .replace('{{logoSvgDataUri}}', logoSvgDataUri)
-      .replace('{{testImageDataUri}}', testImageDataUri);
+      .replace('{{testSvgSvgDataUri}}', testSvgSvgDataUri)
+      .replace('{{testSvgLogoDataUri}}', testSvgLogoDataUri)
+      .replace('{{testImagePngDataUri}}', testImagePngDataUri)
+      .replace('{{testImageJpgDataUri}}', testImageJpgDataUri);
 
     // Set content and wait for assets to load
     await page.setContent(html, { waitUntil: 'networkidle' });

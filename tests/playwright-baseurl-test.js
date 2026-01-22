@@ -61,13 +61,21 @@ export async function generatePDFWithPlaywrightBaseURL(data = {}) {
     await fs.writeFile(tempHtmlPath, html);
 
     try {
-      // Navigate to the file using file:// URL
-      // This ensures relative paths in HTML work correctly
-      const fileUrl = `file://${tempHtmlPath}`;
+      // Navigate to the file using file:// URL with absolute path
+      // Use path.resolve to ensure absolute path for file:// protocol
+      const absolutePath = path.resolve(tempHtmlPath);
+      // On Windows, file:// URLs need forward slashes
+      const fileUrl = process.platform === 'win32'
+        ? `file:///${absolutePath.replace(/\\/g, '/')}`
+        : `file://${absolutePath}`;
+
       await page.goto(fileUrl, {
         waitUntil: 'networkidle',
         timeout: 30000
       });
+
+      // Wait a bit more to ensure images are loaded
+      await page.waitForTimeout(1000);
     } finally {
       // Clean up temp file
       try {
