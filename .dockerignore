@@ -1,0 +1,9 @@
+# node_modules - commented out to use local node_modules for faster builds
+# node_modules
+npm-debug.log
+output
+.git
+.gitignore
+README.md
+*.md
+.env

@@ -1,0 +1,40 @@
+{
+  "name": "pdf-generation-exploration",
+  "version": "1.0.0",
+  "description": "Research and evaluation of PDF generation libraries for ARM Docker Node.js environment",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node test-runner.js",
+    "benchmark": "node benchmark.js",
+    "test:puppeteer": "node tests/puppeteer-test.js",
+    "test:playwright": "node tests/playwright-test.js",
+    "test:puppeteer-base64": "node tests/puppeteer-base64-test.js",
+    "test:puppeteer-baseurl": "node tests/puppeteer-baseurl-test.js",
+    "test:playwright-base64": "node tests/playwright-base64-test.js",
+    "test:playwright-baseurl": "node tests/playwright-baseurl-test.js",
+    "test:pdfkit": "node tests/pdfkit-test.js",
+    "test:pdfmake": "node tests/pdfmake-test.js",
+    "test:pdf-lib": "node tests/pdf-lib-test.js"
+  },
+  "keywords": [
+    "pdf",
+    "generation",
+    "nodejs",
+    "docker",
+    "arm"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.6.1",
+    "playwright": "^1.40.1",
+    "pdfkit": "^0.14.0",
+    "pdfmake": "^0.2.9",
+    "pdf-lib": "^1.17.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6"
+  }
+}

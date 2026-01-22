@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  pdf-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/arm64
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./output:/app/output
+      - ./assets:/app/assets
+    # Required for Puppeteer/Playwright
+    security_opt:
+      - seccomp:unconfined
+    shm_size: '2gb'
