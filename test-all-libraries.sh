@@ -1,8 +1,16 @@
 #!/bin/bash
 
 # Script to test all PDF libraries via API in Docker
+# Only tests the 4 HTML-to-PDF variants: puppeteer-base64, puppeteer-baseurl, playwright-base64, playwright-baseurl
 
 set -e
+
+# Check for cleanup flag
+if [ "$1" == "--clean" ] || [ "$1" == "-c" ]; then
+    echo "Running cleanup first..."
+    ./cleanup-test-outputs.sh
+    echo ""
+fi
 
 API_URL="http://localhost:3000"
 OUTPUT_DIR="./output"
@@ -39,23 +47,8 @@ TEST_DATA='{
   "instructions": "Take as directed"
 }'
 
-# Libraries to test
-# Uncomment the libraries you want to test
-
-# Puppeteer and Playwright variants only (recommended for HTML to PDF)
+# Libraries to test - Only the 4 HTML-to-PDF variants
 LIBRARIES=("puppeteer-base64" "puppeteer-baseurl" "playwright-base64" "playwright-baseurl")
-
-# Original Puppeteer and Playwright (old implementations)
-# LIBRARIES=("puppeteer" "playwright")
-
-# Other libraries (PDFKit, pdfmake, pdf-lib) - not for HTML to PDF
-# LIBRARIES=("pdfkit" "pdfmake" "pdf-lib")
-
-# All Puppeteer and Playwright variants
-# LIBRARIES=("puppeteer" "playwright" "puppeteer-base64" "puppeteer-baseurl" "playwright-base64" "playwright-baseurl")
-
-# All libraries (including PDFKit, pdfmake, pdf-lib)
-# LIBRARIES=("puppeteer" "playwright" "puppeteer-base64" "puppeteer-baseurl" "playwright-base64" "playwright-baseurl" "pdfkit" "pdfmake" "pdf-lib")
 
 # Create output directory if it doesn't exist
 mkdir -p "${OUTPUT_DIR}"
@@ -116,5 +109,15 @@ curl -s -X POST "${API_URL}/api/pdf/test-all" \
     -d "{\"data\": ${TEST_DATA}}" > "${OUTPUT_DIR}/all-libraries-test.json"
 
 echo -e "${GREEN}✅ Results saved to ${OUTPUT_DIR}/all-libraries-test.json${NC}"
+echo ""
+
+# Show usage info
+echo "=========================================="
+echo -e "${BLUE}💡 Tips${NC}"
+echo "=========================================="
+echo "  • To clean old test outputs: ./cleanup-test-outputs.sh"
+echo "  • To test with cleanup: ./test-all-libraries.sh --clean"
+echo "  • Only 4 variants are tested (API-based only)"
+echo ""
 
 exit 0

@@ -5,17 +5,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node test-runner.js",
-    "benchmark": "node benchmark.js",
-    "test:puppeteer": "node tests/puppeteer-test.js",
-    "test:playwright": "node tests/playwright-test.js",
-    "test:puppeteer-base64": "node tests/puppeteer-base64-test.js",
-    "test:puppeteer-baseurl": "node tests/puppeteer-baseurl-test.js",
-    "test:playwright-base64": "node tests/playwright-base64-test.js",
-    "test:playwright-baseurl": "node tests/playwright-baseurl-test.js",
-    "test:pdfkit": "node tests/pdfkit-test.js",
-    "test:pdfmake": "node tests/pdfmake-test.js",
-    "test:pdf-lib": "node tests/pdf-lib-test.js"
+    "start": "node server.js",
+    "test:api": "./test-all-libraries.sh --clean",
+    "clean": "./cleanup-test-outputs.sh"
   },
   "keywords": [
     "pdf",
