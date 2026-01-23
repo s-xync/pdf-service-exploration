@@ -3,6 +3,7 @@ import { generatePDFWithPlaywright } from './tests/playwright-test.js';
 import { generatePDFWithPDFKit } from './tests/pdfkit-test.js';
 import { generatePDFWithPDFMake } from './tests/pdfmake-test.js';
 import { generatePDFWithPDFLib } from './tests/pdf-lib-test.js';
+import { generatePDFWithHtmlPdfNode } from './tests/html-pdf-node-test.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -29,7 +30,8 @@ async function runAllTests() {
     { name: 'Playwright', fn: generatePDFWithPlaywright },
     { name: 'PDFKit', fn: generatePDFWithPDFKit },
     { name: 'pdfmake', fn: generatePDFWithPDFMake },
-    { name: 'pdf-lib', fn: generatePDFWithPDFLib }
+    { name: 'pdf-lib', fn: generatePDFWithPDFLib },
+    { name: 'html-pdf-node', fn: generatePDFWithHtmlPdfNode }
   ];
 
   for (const lib of libraries) {

@@ -41,6 +41,7 @@ RUN npx playwright install chromium --with-deps || true
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 # Note: PUPPETEER_EXECUTABLE_PATH will be set dynamically in the code
 # since the exact path depends on the Chromium version installed
+# Note: html-pdf-node is now in a separate service (html-pdf-node-api)
 
 # Copy application code
 COPY . .

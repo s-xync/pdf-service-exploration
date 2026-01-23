@@ -18,3 +18,21 @@ services:
     security_opt:
       - seccomp:unconfined
     shm_size: '2gb'
+
+  html-pdf-node-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.html-pdf-node
+      platforms:
+        - linux/arm64
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ./output:/app/output
+      - ./assets:/app/assets
+    # Required for Chromium/Puppeteer
+    security_opt:
+      - seccomp:unconfined
+    shm_size: '2gb'

@@ -7,6 +7,7 @@ import { generatePDFWithPlaywrightBaseURL } from './tests/playwright-baseurl-tes
 import { generatePDFWithPuppeteer } from './tests/puppeteer-test.js';
 import { generatePDFWithPlaywright } from './tests/playwright-test.js';
 // Other libraries (PDFKit, pdfmake, pdf-lib)
+// Note: html-pdf-node is in a separate service (server-html-pdf-node.js)
 import { generatePDFWithPDFKit } from './tests/pdfkit-test.js';
 import { generatePDFWithPDFMake } from './tests/pdfmake-test.js';
 import { generatePDFWithPDFLib } from './tests/pdf-lib-test.js';
@@ -35,6 +36,7 @@ const libraries = {
   'pdfkit': generatePDFWithPDFKit,
   'pdfmake': generatePDFWithPDFMake,
   'pdf-lib': generatePDFWithPDFLib
+  // Note: html-pdf-node is available via separate service on port 3001
 };
 
 /**
@@ -125,6 +127,7 @@ function getLibraryDescription(name) {
     'pdfkit': 'Pure JavaScript PDF generation library',
     'pdfmake': 'Declarative PDF generation library',
     'pdf-lib': 'Modern PDF manipulation and generation library'
+    // Note: html-pdf-node is available via separate service on port 3001
   };
   return descriptions[name] || 'PDF generation library';
 }

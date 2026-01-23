@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to test all PDF libraries via API in Docker
-# Only tests the 4 HTML-to-PDF variants: puppeteer-base64, puppeteer-baseurl, playwright-base64, playwright-baseurl
+# Tests HTML-to-PDF libraries: puppeteer-base64, puppeteer-baseurl, playwright-base64, playwright-baseurl, html-pdf-node
 
 set -e
 
@@ -13,6 +13,7 @@ if [ "$1" == "--clean" ] || [ "$1" == "-c" ]; then
 fi
 
 API_URL="http://localhost:3000"
+HTML_PDF_NODE_API_URL="http://localhost:3001"
 OUTPUT_DIR="./output"
 
 # Colors
@@ -26,16 +27,27 @@ echo -e "${BLUE}🧪 Testing All PDF Libraries via Docker API${NC}"
 echo "=========================================="
 echo ""
 
-# Check if API is running
-echo -e "${YELLOW}Checking API health...${NC}"
+# Check if main API is running
+echo -e "${YELLOW}Checking main API health...${NC}"
 if ! curl -s -f "${API_URL}/health" > /dev/null; then
-    echo -e "${RED}❌ API is not running at ${API_URL}${NC}"
-    echo "Please start the Docker container first:"
+    echo -e "${RED}❌ Main API is not running at ${API_URL}${NC}"
+    echo "Please start the Docker containers first:"
     echo "  docker-compose up -d"
     exit 1
 fi
 
-echo -e "${GREEN}✅ API is running${NC}"
+echo -e "${GREEN}✅ Main API is running${NC}"
+
+# Check if html-pdf-node API is running
+echo -e "${YELLOW}Checking html-pdf-node API health...${NC}"
+if ! curl -s -f "${HTML_PDF_NODE_API_URL}/health" > /dev/null; then
+    echo -e "${YELLOW}⚠️  html-pdf-node API is not running at ${HTML_PDF_NODE_API_URL}${NC}"
+    echo "  (This is optional - html-pdf-node tests will be skipped)"
+    HTML_PDF_NODE_AVAILABLE=false
+else
+    echo -e "${GREEN}✅ html-pdf-node API is running${NC}"
+    HTML_PDF_NODE_AVAILABLE=true
+fi
 echo ""
 
 # Test data
@@ -47,7 +59,7 @@ TEST_DATA='{
   "instructions": "Take as directed"
 }'
 
-# Libraries to test - Only the 4 HTML-to-PDF variants
+# Libraries to test - HTML-to-PDF variants (main API)
 LIBRARIES=("puppeteer-base64" "puppeteer-baseurl" "playwright-base64" "playwright-baseurl")
 
 # Create output directory if it doesn't exist
@@ -84,12 +96,44 @@ for lib in "${LIBRARIES[@]}"; do
     echo ""
 done
 
+# Test html-pdf-node separately if available
+if [ "$HTML_PDF_NODE_AVAILABLE" = true ]; then
+    echo -e "${YELLOW}Testing html-pdf-node (separate service)...${NC}"
+
+    OUTPUT_FILE="${OUTPUT_DIR}/html-pdf-node-api-test.pdf"
+
+    # Generate PDF (html-pdf-node service doesn't need library parameter)
+    HTTP_CODE=$(curl -s -w "%{http_code}" -o "${OUTPUT_FILE}" \
+        -X POST "${HTML_PDF_NODE_API_URL}/api/pdf/generate" \
+        -H "Content-Type: application/json" \
+        -d "{\"data\": ${TEST_DATA}}")
+
+    if [ "${HTTP_CODE}" -eq 200 ]; then
+        FILE_SIZE=$(stat -f%z "${OUTPUT_FILE}" 2>/dev/null || stat -c%s "${OUTPUT_FILE}" 2>/dev/null)
+        FILE_SIZE_KB=$((FILE_SIZE / 1024))
+        echo -e "${GREEN}  ✅ Success - ${FILE_SIZE_KB} KB${NC}"
+        SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+    else
+        echo -e "${RED}  ❌ Failed (HTTP ${HTTP_CODE})${NC}"
+        if [ -f "${OUTPUT_FILE}" ]; then
+            cat "${OUTPUT_FILE}"
+            rm "${OUTPUT_FILE}"
+        fi
+        FAIL_COUNT=$((FAIL_COUNT + 1))
+    fi
+    echo ""
+
+    TOTAL_LIBRARIES=$((${#LIBRARIES[@]} + 1))
+else
+    TOTAL_LIBRARIES=${#LIBRARIES[@]}
+fi
+
 # Summary
 echo "=========================================="
 echo -e "${BLUE}📊 Test Summary${NC}"
 echo "=========================================="
-echo -e "${GREEN}✅ Successful: ${SUCCESS_COUNT}/${#LIBRARIES[@]}${NC}"
-echo -e "${RED}❌ Failed: ${FAIL_COUNT}/${#LIBRARIES[@]}${NC}"
+echo -e "${GREEN}✅ Successful: ${SUCCESS_COUNT}/${TOTAL_LIBRARIES}${NC}"
+echo -e "${RED}❌ Failed: ${FAIL_COUNT}/${TOTAL_LIBRARIES}${NC}"
 echo ""
 
 # List generated files
@@ -117,7 +161,8 @@ echo -e "${BLUE}💡 Tips${NC}"
 echo "=========================================="
 echo "  • To clean old test outputs: ./cleanup-test-outputs.sh"
 echo "  • To test with cleanup: ./test-all-libraries.sh --clean"
-echo "  • Only 4 variants are tested (API-based only)"
+echo "  • Tests HTML-to-PDF libraries via API"
+echo "  • html-pdf-node runs on separate service (port 3001)"
 echo ""
 
 exit 0
