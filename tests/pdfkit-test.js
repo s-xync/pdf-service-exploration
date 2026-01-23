@@ -2,23 +2,34 @@ import PDFDocument from 'pdfkit';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import SVGtoPDF from 'svg-to-pdfkit';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
- * PDFKit PDF Generation Test
+ * PDFKit PDF Generation Test with Image and SVG Support
+ *
+ * Image Support:
+ * - ✅ PNG images via doc.image() with file path or buffer
+ * - ✅ JPG/JPEG images via doc.image() with file path or buffer
+ *
+ * SVG Support:
+ * - ✅ SVG via svg-to-pdfkit library
+ * - Supports most SVG features: paths, shapes, text, gradients, etc.
  *
  * Pros:
  * - Pure JavaScript (no external binaries)
  * - Lightweight and fast
  * - Good for programmatic PDF creation
  * - Excellent ARM compatibility (pure JS)
+ * - Native image support (PNG, JPG)
+ * - SVG support via svg-to-pdfkit library
  *
  * Cons:
  * - Limited HTML/CSS support (no HTML rendering)
  * - Manual layout required
- * - SVG support requires additional libraries
+ * - SVG requires additional library (svg-to-pdfkit)
  * - More code needed for complex layouts
  */
 export async function generatePDFWithPDFKit(data = {}) {
@@ -67,11 +78,154 @@ export async function generatePDFWithPDFKit(data = {}) {
        .text(`Instructions: ${data.instructions || 'Take once daily'}`)
        .moveDown();
 
-    // Note: PDFKit doesn't natively support SVG rendering
-    // Would need svg-to-pdfkit or similar library
-    doc.fontSize(10)
-       .fillColor('gray')
-       .text('[SVG rendering requires additional library]', { italic: true });
+    // Image Support Section
+    doc.fontSize(18)
+       .text('Image Support (PDFKit)', { underline: true })
+       .moveDown(0.5);
+
+    const assetsDir = path.join(__dirname, '../assets');
+
+    // Add PNG Image
+    try {
+      const pngPath = path.join(assetsDir, 'test-image-png.png');
+
+      // Check if file exists
+      try {
+        await fs.access(pngPath);
+      } catch (accessError) {
+        throw new Error(`PNG file not found at ${pngPath}`);
+      }
+
+      console.log(`[pdfkit] Loading PNG from: ${pngPath}`);
+      doc.fontSize(12)
+         .text('PNG Image:', { continued: false })
+         .moveDown(0.3);
+
+      doc.image(pngPath, {
+        fit: [150, 150],
+        align: 'left'
+      });
+      console.log(`[pdfkit] PNG image added successfully`);
+      doc.moveDown();
+    } catch (error) {
+      console.error(`[pdfkit] PNG Error:`, error);
+      doc.fontSize(10)
+         .fillColor('red')
+         .text(`PNG Error: ${error.message}`)
+         .fillColor('black')
+         .moveDown();
+    }
+
+    // Add JPG Image
+    try {
+      const jpgPath = path.join(assetsDir, 'test-image-jpg.jpg');
+
+      // Check if file exists
+      try {
+        await fs.access(jpgPath);
+      } catch (accessError) {
+        throw new Error(`JPG file not found at ${jpgPath}`);
+      }
+
+      console.log(`[pdfkit] Loading JPG from: ${jpgPath}`);
+      doc.fontSize(12)
+         .text('JPG Image:', { continued: false })
+         .moveDown(0.3);
+
+      doc.image(jpgPath, {
+        fit: [150, 150],
+        align: 'left'
+      });
+      console.log(`[pdfkit] JPG image added successfully`);
+      doc.moveDown();
+    } catch (error) {
+      console.error(`[pdfkit] JPG Error:`, error);
+      doc.fontSize(10)
+         .fillColor('red')
+         .text(`JPG Error: ${error.message}`)
+         .fillColor('black')
+         .moveDown();
+    }
+
+    // SVG Support Section
+    doc.fontSize(18)
+       .text('SVG Support (via svg-to-pdfkit)', { underline: true })
+       .moveDown(0.5);
+
+    // Add SVG from file
+    try {
+      const svgPath = path.join(assetsDir, 'test-svg-svg.svg');
+
+      // Check if file exists
+      try {
+        await fs.access(svgPath);
+      } catch (accessError) {
+        throw new Error(`SVG file not found at ${svgPath}`);
+      }
+
+      const svgContent = await fs.readFile(svgPath, 'utf-8');
+      console.log(`[pdfkit] SVG file read: ${svgContent.length} chars`);
+
+      doc.fontSize(12)
+         .text('SVG Image (from file):', { continued: false })
+         .moveDown(0.3);
+
+      const svgY = doc.y;
+      console.log(`[pdfkit] Rendering SVG at y=${svgY}`);
+
+      // Use svg-to-pdfkit to render SVG
+      SVGtoPDF(doc, svgContent, 20, svgY, {
+        width: 150,
+        height: 150
+      });
+
+      console.log(`[pdfkit] SVG rendered successfully`);
+      doc.y += 160; // Move down after SVG
+      doc.moveDown();
+    } catch (error) {
+      console.error(`[pdfkit] SVG Error:`, error);
+      doc.fontSize(10)
+         .fillColor('red')
+         .text(`SVG Error: ${error.message}`)
+         .fillColor('black')
+         .moveDown();
+    }
+
+    // Add another SVG (logo)
+    try {
+      const logoSvgPath = path.join(assetsDir, 'test-svg-logo.svg');
+
+      // Check if file exists
+      try {
+        await fs.access(logoSvgPath);
+      } catch (accessError) {
+        throw new Error(`SVG logo file not found at ${logoSvgPath}`);
+      }
+
+      const logoSvgContent = await fs.readFile(logoSvgPath, 'utf-8');
+      console.log(`[pdfkit] SVG logo file read: ${logoSvgContent.length} chars`);
+
+      doc.fontSize(12)
+         .text('SVG Logo (from file):', { continued: false })
+         .moveDown(0.3);
+
+      const logoSvgY = doc.y;
+      console.log(`[pdfkit] Rendering SVG logo at y=${logoSvgY}`);
+
+      SVGtoPDF(doc, logoSvgContent, 20, logoSvgY, {
+        width: 150,
+        height: 150
+      });
+
+      console.log(`[pdfkit] SVG logo rendered successfully`);
+      doc.y += 160;
+    } catch (error) {
+      console.error(`[pdfkit] SVG Logo Error:`, error);
+      doc.fontSize(10)
+         .fillColor('red')
+         .text(`SVG Logo Error: ${error.message}`)
+         .fillColor('black');
+    }
 
     doc.end();
 
@@ -90,7 +244,7 @@ export async function generatePDFWithPDFKit(data = {}) {
       generationTime,
       fileSize: stats.size,
       outputPath,
-      notes: 'Pure JS library, no SVG support without additional libraries'
+      notes: 'Native PNG/JPG support. SVG support via svg-to-pdfkit library.'
     };
   } catch (error) {
     return {

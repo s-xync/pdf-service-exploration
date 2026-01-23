@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to test all PDF libraries via API in Docker
-# Tests HTML-to-PDF libraries: puppeteer-base64, puppeteer-baseurl, playwright-base64, playwright-baseurl, html-pdf-node
+# Tests all libraries: HTML-to-PDF (puppeteer, playwright variants) and pure JS (pdfkit, pdfmake, pdf-lib)
 
 set -e
 
@@ -59,8 +59,13 @@ TEST_DATA='{
   "instructions": "Take as directed"
 }'
 
-# Libraries to test - HTML-to-PDF variants (main API)
-LIBRARIES=("puppeteer-base64" "puppeteer-baseurl" "playwright-base64" "playwright-baseurl")
+# Libraries to test - All libraries available in main API
+# HTML-to-PDF variants
+HTML_TO_PDF_LIBS=("puppeteer-base64" "puppeteer-baseurl" "playwright-base64" "playwright-baseurl")
+# Pure JavaScript libraries
+PURE_JS_LIBS=("pdfkit" "pdfmake" "pdf-lib")
+# Combine all libraries
+LIBRARIES=("${HTML_TO_PDF_LIBS[@]}" "${PURE_JS_LIBS[@]}")
 
 # Create output directory if it doesn't exist
 mkdir -p "${OUTPUT_DIR}"
@@ -161,7 +166,7 @@ echo -e "${BLUE}💡 Tips${NC}"
 echo "=========================================="
 echo "  • To clean old test outputs: ./cleanup-test-outputs.sh"
 echo "  • To test with cleanup: ./test-all-libraries.sh --clean"
-echo "  • Tests HTML-to-PDF libraries via API"
+echo "  • Tests all libraries via API (HTML-to-PDF + Pure JS)"
 echo "  • html-pdf-node runs on separate service (port 3001)"
 echo ""
 
